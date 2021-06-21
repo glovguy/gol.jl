@@ -1,6 +1,7 @@
 struct Circles
     n::Int64
 end
+Circles() = Circles(10)
 
 function draw_item(circles::Circles, canvas::Gtk.GtkCanvas, scene::Scene)
     ctx = Gtk.getgc(canvas)

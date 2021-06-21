@@ -4,12 +4,17 @@ using Cairo
 
 include("scene.jl")
 
-function new_canvas()
-    Gtk.@GtkCanvas(400,400)
+function new_canvas(sizex, sizey)
+    Gtk.@GtkCanvas(sizex, sizey)
 end
+new_canvas() = new_canvas(400,400)
 
 function new_app_window(canvas::Gtk.GtkCanvas)
-    Gtk.GtkWindow(canvas, "Game of Life")
+    win = Gtk.GtkWindow(canvas, "Game of Life")
+    signal_connect(win, :destroy) do widget
+        println("Window was closed")
+    end
+    return win
 end
 
 function update(canvas::Gtk.GtkCanvas, scene::Scene)

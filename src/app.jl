@@ -2,7 +2,6 @@ module App
 
 using Printf
 include("canvas.jl")
-# Maybe there should be a drawable abstract type?
 include("drawables/checkerboard.jl")
 include("drawables/timetext.jl")
 include("drawables/circles.jl")
@@ -26,24 +25,13 @@ end
 #     end
 
 function start()
-    canvas = new_canvas()
+    canvas = new_canvas(1200,600)
+    win = new_app_window(canvas)
     show(canvas)
 
-    boardx = 20
-    boardy = 25
-    board = Checkerboard(
-        boardx,
-        boardy,
-        floor(min((400-5)/boardx,(400-15)/boardy)),
-        rand(Bool, (boardx, boardy))
-    )
+    board = Checkerboard(1200,600)
 
-    win = new_app_window(canvas)
-    signal_connect(win, :destroy) do widget
-        println("Window was closed")
-    end
-
-    contents = [TimeText(),Circles(10),board]
+    contents = [TimeText(),board]
     scene = Scene(contents)
     init_timer(canvas, scene)
     draw(canvas -> draw_scene(canvas, scene), canvas)

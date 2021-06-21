@@ -1,11 +1,31 @@
 Pixels = Array{Bool};
-
 mutable struct Checkerboard
     w::Int64
     h::Int64
-    size::Int64
-    pixels::Pixels
+    pixelsize::Int64
+    nowisalpha::Bool
+    pixelsalpha::Pixels
+    pixelsbeta::Pixels
 end
+Checkerboard(width, height) = begin
+    offsetx = 5
+    offsety = 15
+    pixelsize = 10
+    boardx = (width-offsetx) ÷ pixelsize
+    boardy = (height-offsety) ÷ pixelsize
+    pxl = rand(Bool, (boardx, boardy))
+    Checkerboard(
+        boardx,
+        boardy,
+        pixelsize,
+        true,
+        pxl,
+        copy(pxl)
+    )
+end
+
+pixels(board::Checkerboard) = board.nowisalpha ? board.pixelsalpha : board.pixelsbeta
+oldpixels(board::Checkerboard) = board.nowisalpha ? board.pixelsbeta : board.pixelsalpha
 
 neighborindices = filter(x -> Tuple(x) != (0,0), CartesianIndex(-1,-1):CartesianIndex(1,1))
 
@@ -29,33 +49,35 @@ function num_neighbors(pixels::Pixels, i::CartesianIndex, w, h)
 end
 
 function evolve_tick(board::Checkerboard, scene::Scene)
-    oldpixels = board.pixels
-    newpixels = copy(oldpixels)
-    for i in CartesianIndices(oldpixels)
-        neigh = num_neighbors(oldpixels, i, board.w, board.h)
+    board.nowisalpha = !board.nowisalpha
+    newpixels = pixels(board)
+    oldp = oldpixels(board)
+    for i in CartesianIndices(oldp)
+        neigh = num_neighbors(oldp, i, board.w, board.h)
         if neigh == 3
             newpixels[i] = true
-        end
-        if neigh < 2 || neigh > 3
+        elseif neigh < 2 || neigh > 3
             newpixels[i] = false
+        else
+            newpixels[i] = oldp[i]
         end
     end
-    board.pixels = newpixels
 end
 
 function draw_item(board::Checkerboard, canvas::Gtk.GtkCanvas, scene::Scene)
     ctx = Gtk.getgc(canvas)
-
-    for i in CartesianIndices(board.pixels)
+    pixs = pixels(board)
+    for i in CartesianIndices(pixs)
         x = i[1]
         y = i[2]
-        p = board.pixels[i]
+        p = pixs[i]
         if p
             set_source_rgba(ctx,0,0,0,1)
         else
             set_source_rgba(ctx,1,1,1,0)
         end
-        rectangle(ctx, 5+((x-1)*board.size), 15+((y-1)*board.size), board.size, board.size)
+        pixelsize = board.pixelsize
+        rectangle(ctx, 5+((x-1)*pixelsize), 15+((y-1)*pixelsize), pixelsize, pixelsize)
         fill(ctx)
     end
 end
