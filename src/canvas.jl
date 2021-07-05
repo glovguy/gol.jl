@@ -5,7 +5,7 @@ using Cairo
 include("scene.jl")
 
 function new_canvas(sizex, sizey)
-    Gtk.@GtkCanvas(sizex, sizey)
+    return Gtk.@GtkCanvas(sizex, sizey)
 end
 new_canvas() = new_canvas(400,400)
 
@@ -17,9 +17,7 @@ function new_app_window(canvas::Gtk.GtkCanvas)
     return win
 end
 
-function update(canvas::Gtk.GtkCanvas, scene::Scene)
-    draw(canvas)
-end
+update(canvas::Gtk.GtkCanvas, ::Any) = draw(canvas)
 
 function draw_scene(canvas::Gtk.GtkCanvas, scene::Scene)
     show(canvas)
@@ -27,4 +25,5 @@ function draw_scene(canvas::Gtk.GtkCanvas, scene::Scene)
     for dble in scene.contents
         draw_item(dble, canvas, scene)
     end
+    return nothing
 end

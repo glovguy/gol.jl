@@ -1,4 +1,4 @@
-Pixels = Array{Bool};
+Pixels = BitArray;
 mutable struct Checkerboard
     w::Int64
     h::Int64
@@ -37,18 +37,10 @@ function valid_neighbor(x::CartesianIndex,w,h)
 end
 
 function num_neighbors(pixels::Pixels, i::CartesianIndex, w, h)
-    total = 0
-    allneighbors = [i] .+ copy(neighborindices)
-    ni = filter(x -> valid_neighbor(x,w,h), allneighbors)
-    for n in ni
-        if pixels[n]
-            total += 1
-        end
-    end
-    return total
+    return count(ni -> valid_neighbor(ni+i,w,h) && pixels[ni+i], neighborindices)
 end
 
-function evolve_tick(board::Checkerboard, scene::Scene)
+function evolve_tick(board::Checkerboard)    
     board.nowisalpha = !board.nowisalpha
     newpixels = pixels(board)
     oldp = oldpixels(board)
@@ -62,22 +54,19 @@ function evolve_tick(board::Checkerboard, scene::Scene)
             newpixels[i] = oldp[i]
         end
     end
+    return nothing
 end
 
 function draw_item(board::Checkerboard, canvas::Gtk.GtkCanvas, scene::Scene)
     ctx = Gtk.getgc(canvas)
     pixs = pixels(board)
     for i in CartesianIndices(pixs)
+        pixs[i] ? set_source_rgba(ctx,0,0,0,1) : set_source_rgba(ctx,1,1,1,0)
+        pixelsize = board.pixelsize
         x = i[1]
         y = i[2]
-        p = pixs[i]
-        if p
-            set_source_rgba(ctx,0,0,0,1)
-        else
-            set_source_rgba(ctx,1,1,1,0)
-        end
-        pixelsize = board.pixelsize
         rectangle(ctx, 5+((x-1)*pixelsize), 15+((y-1)*pixelsize), pixelsize, pixelsize)
         fill(ctx)
     end
+    return nothing
 end

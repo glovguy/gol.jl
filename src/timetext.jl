@@ -12,7 +12,9 @@ function draw_item(timetext::TimeText, canvas::Gtk.GtkCanvas, scene::Scene)
     fill(ctx)
 
     set_source_rgb(ctx, 0.5, 0.0, 0.7)
-    txt = @sprintf("%07.3fs since last frame",time()-scene.lastTimeCalled)
+    timesincelastframe = time()-scene.lastTimeCalled
+    txt = @sprintf("%07.3fs since last frame", timesincelastframe)
     text(ctx,0,18,txt)
     scene.lastTimeCalled = time()
+    return nothing
 end

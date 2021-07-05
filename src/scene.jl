@@ -11,8 +11,8 @@ Scene(contents::Array) = Scene(0.05, contents)
 function evolve_tick(scene::Scene)
     scene.tNow += scene.dt
     for c in scene.contents
-        evolve_tick(c, scene)
+        evolve_tick(c)
     end
 end
 
-function evolve_tick(Any, scene::Scene); end; # no op
+function evolve_tick(Any); end; # no op

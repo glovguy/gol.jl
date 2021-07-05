@@ -20,4 +20,5 @@ function draw_item(circles::Circles, canvas::Gtk.GtkCanvas, scene::Scene)
         stroke(ctx);
         ti = ti + 0.05
     end
+    return nothing
 end
